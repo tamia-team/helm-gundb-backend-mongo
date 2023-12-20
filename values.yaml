@@ -1,0 +1,46 @@
+mongodb:
+  replicaCount: 1
+  image:
+    repository: mongo/5.0.23-focal
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 27017
+  mongodbRootPassword: secret
+  mongodbUsername: mongoadmin
+  mongodbPassword: secret
+  mongodbDatabase: gundb
+  persistence:
+    enabled: false
+    size: 10Gi
+
+gundb:
+  replicaCount: 1
+  image:
+    repository: gundb/gun@sha256:2412e28280316e9992e187df083a9b57202f37a827e5e45a5ac8b3bec7682287
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8765
+  persistence:
+    enabled: false
+    size: 5Gi
+  environment:
+    MONGODB_URI: mongodb://mongoadmin:secret@mongodb-service:27017/gundb
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: gundb.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: gundb-tls
+      hosts:
+        - gundb.example.com

@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+spec:
+  replicas: {{ .Values.mongodb.replicaCount }}
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: "{{ .Values.mongodb.image.repository }}:{{ .Values.mongodb.image.tag }}"
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: "{{ .Values.mongodb.mongodbUsername }}"
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: "{{ .Values.mongodb.mongodbPassword }}"
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+      volumes:
+        - name: mongodb-data
+          persistentVolumeClaim:
+            claimName: mongodb-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gundb
+spec:
+  replicas: {{ .Values.gundb.replicaCount }}
+  selector:
+    matchLabels:
+      app: gundb
+  template:
+    metadata:
+      labels:
+        app: gundb
+    spec:
+      containers:
+        - name: gundb
+          image: "{{ .Values.gundb.image.repository }}:{{ .Values.gundb.image.tag }}"
+          ports:
+            - containerPort: 8765
+          env:
+            - name: MONGODB_URI
+              value: "{{ .Values.gundb.environment.MONGODB_URI }}"
+          volumeMounts:
+            - name: gundb-data
+              mountPath: /data
+      volumes:
+        - name: gundb-data
+          persistentVolumeClaim:
+            claimName: gundb-pvc

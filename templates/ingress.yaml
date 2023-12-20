@@ -1,0 +1,29 @@
+---
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gundb-ingress
+  annotations:
+    {{- range $key, $value := .Values.ingress.annotations }}
+    {{ $key }}: {{ $value }}
+    {{- end }}
+spec:
+  rules:
+    - host: "{{ .Values.ingress.hosts[0].host }}"
+      http:
+        paths:
+          - path: "{{ .Values.ingress.hosts[0].paths[0].path }}"
+            pathType: {{ .Values.ingress.hosts[0].paths[0].pathType }}
+            backend:
+              service:
+                name: gundb-service
+                port:
+                  number: {{ .Values.gundb.service.port }}
+  tls:
+    - hosts:
+        {{- range .Values.ingress.tls }}
+        - {{ .hosts }}
+        {{- end }}
+      secretName: {{ .Values.ingress.tls[0].secretName }}
+{{- end }}

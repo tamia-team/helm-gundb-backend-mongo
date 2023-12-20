@@ -1,0 +1,24 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+spec:
+  type: {{ .Values.mongodb.service.type }}
+  ports:
+    - port: {{ .Values.mongodb.service.port }}
+      targetPort: 27017
+  selector:
+    app: mongodb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gundb-service
+spec:
+  type: {{ .Values.gundb.service.type }}
+  ports:
+    - port: {{ .Values.gundb.service.port }}
+      targetPort: 8765
+  selector:
+    app: gundb

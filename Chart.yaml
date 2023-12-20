@@ -1,0 +1,4 @@
+apiVersion: v2
+name: gundb-backend-mongo
+description: A Helm chart for Kubernetes to deploy GunDB with MongoDB backend
+version: 0.0.1
